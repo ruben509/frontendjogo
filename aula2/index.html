@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Monster Slayer</title>
+    <script src="https://npmcdn.com/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="foundation.min.css">
+    <link rel="stylesheet" href="app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+</head>
+
+<body>
+    <div id="app">
+        <section class="row">
+            <div class="small-6 columns">
+                <h1 class="text-center">YOU</h1>
+                <transition :enter-active-class="'animated' + animationP">
+                    <img src="https://imgix.bustle.com/inverse/d7/e4/b4/b6/c2b0/4f49/903d/513af631fa8d/fanart-1286-largejpg.jpeg?w=1200&h=630&q=70&fit=crop&crop=faces&fm=jpg" width="400px" height="200px" v-if="shakeP">
+                </transition>
+                <div class="healthbar">
+                    <div class="healthbar text-center" v-bind:style="{width:playerHealth+'%'}" style="background-color: green; margin: 0; color: white;">
+                        {{playerHealth}}
+                    </div>
+                </div>
+            </div>
+            <div class="small-6 columns">
+                <h1 class="text-center">MONSTER</h1>
+                <transition :enter-active-class="'animated' + animationP">
+                    <img src="" v-if="shakeP">
+                </transition>
+                <div class="healthbar" >
+                    <div class="healthbar text-center" v-bind:style="{width:monsterHealth+'%'}" style="background-color: green; margin: 0; color: white;">
+                        {{monsterHealth}}
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="row controls" v-if="!gameIsRunning">
+            <div class="small-12 columns">
+                <button v-on:click="stargame" id="start-game">START NEW GAME</button>
+            </div>
+        </section>
+        <section class="row controls" v-else>
+            <div class="small-12 columns" >
+                <button id="attack" v-on:click="attack">ATTACK</button>
+                <button id="special-attack" v-on:click="specialattack">SPECIAL ATTACK</button>
+                <button id="heal" v-on:click="heal">HEAL</button>
+                <button id="give-up" v-on:click="giveUp">GIVE UP</button>
+            </div>
+        </section>
+        <section class="row log">
+            <div class="small-12 columns">
+                <ul>
+                    <transition-group name="fade" appear>
+                        <li v-for="trun in  truns" :key="create_id" :class="{'player-turn':trun.isPlayer, 'monster-turn': !trun.isPlayer, }">
+                            {{trun.text}}
+                        </li>
+                    </transition-group>
+                </ul>
+            </div>
+        </section>
+    </div>
+    <style>
+        .fade-enter-active{
+            transition: opacity 1.5s;
+        }
+        .fade-enter{
+            opacity: 0;
+        }
+    </style>
+    <script>
+        new Vue({
+            el:"#app",
+            data:{ 
+                playerHealth:50,
+                monsterHealth:100,
+                gameIsRunning:false,
+                truns:[],
+                create_id:0,
+                animationP:'',
+                shakeP:true,
+            },
+            methods:{
+                stargame: function(){
+                    this.gameIsRunning=true;
+                    this.playerHealth=100;
+                    this.monsterHealth=100;
+                    this.truns=[];
+
+                },
+                attack: function(){
+                    //var max=10;
+                    //var min=3;
+                    //var damage=Math.max(Math.floor(Math.random()*max)+1, min);
+                    this.create_id+=1;
+                    damege=this.calculateDamege(10,3);
+                    this.monsterHealth-=damege;
+                    this.AttackP(damege);
+                    this.animationP="animate_shakeX";
+                    
+                    //var max=15;
+                    //var min=3;
+                    //var damage=Math.max(Math.floor(Math.random()*max)+1, min);
+                    damega=this.calculateDamege(10,3);
+                    this.playerHealth-=damega;
+                    this.AttackM(damega);
+                    
+                    this.Vitoriaouderota();
+                },
+                specialattack: function(){ 
+                    this.create_id+=1;
+                    damege=this.calculateDamege(15,3);
+                    this.monsterHealth-=damege
+                    this.AttackP(damege);
+
+                    damega=this.calculateDamege(15,3);
+                    this.playerHealth-=damega
+                    this.AttackM(damega);
+
+                    this.Vitoriaouderota();
+                },
+                heal: function(){
+                    this.create_id+=1;
+                    heal1=this.calculateDamege(20,5);
+                    this.playerHealth+=heal1;
+                    this.Heals(heal1);
+
+                    damega=this.calculateDamege(10,3);
+                    this.playerHealth-=damega
+                    this.AttackM(damega);
+
+                    this.Vitoriaouderota();
+
+                },
+                giveUp: function(){
+                    alert('covarde')
+                    this.gameIsRunning=false;
+                    
+                },
+                calculateDamege:function(max,min){
+                    return Math.max(Math.floor(Math.random()*max)+1, min);
+                },
+                AttackP: function(dano){
+                    this.truns.unshift({
+                        isPlayer:truejhgdcv,   
+                        text:'Player hits monster for '+ dano,
+                        },
+                    )
+                },
+                AttackM: function(dano){
+                    this.truns.unshift({
+                        isPlayer:false,   
+                        text:'Monster hits player for '+ dano,
+                         },
+                    )
+                },
+                Heals: function(vida){
+                    this.truns.unshift({
+                        isPlayer:false,   
+                        text:'Player heals '+ vida,
+                        },
+                    )
+                },
+                Vitoriaouderota: function(){
+                    if(this.monsterHealth <=0){
+                        this.monsterHealth=0;
+                        alert('ganhou')
+                        this.gameIsRunning=false;
+                    }
+                    if(this.playerHealth <=0){
+                        this.playerHealth=0;
+                        alert('perdeu')
+                        this.gameIsRunning=false;
+                    }
+                }
+             }
+
+        }) 
+    </script>
+</body>
+
+</html>
